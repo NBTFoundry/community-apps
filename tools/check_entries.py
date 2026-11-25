@@ -20,6 +20,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 HERE = "NBTFoundry/community-apps"
+# NBTFoundry's own sources are never built here, except the examples: the
+# pipeline's own test, built and signed like any submitted application.
+OWN_ALLOWED = {"NBTFoundry/examples"}
 ID = re.compile(r"[a-z0-9_-]{1,48}\Z")
 REPO = re.compile(r"[A-Za-z0-9-]{1,39}/[A-Za-z0-9._-]{1,100}\Z")
 COMMIT = re.compile(r"[0-9a-f]{40}\Z")
@@ -45,7 +48,9 @@ def problems(app, entry, reserved):
     if unknown:
         yield f"unknown fields {sorted(unknown)}"
     text = lambda key: entry.get(key) if isinstance(entry.get(key), str) else ""
-    if not REPO.fullmatch(text("repository")) or text("repository").lower().startswith("nbtfoundry/"):
+    repository = text("repository")
+    if not REPO.fullmatch(repository) or (repository.lower().startswith("nbtfoundry/")
+                                          and repository not in OWN_ALLOWED):
         yield "repository must be owner/name, outside NBTFoundry"
     for key in ("commit", "sdk"):
         if not COMMIT.fullmatch(text(key)):

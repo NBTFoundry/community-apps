@@ -39,6 +39,10 @@ class EntryTests(unittest.TestCase):
         item = check.matrix_item("clock", GOOD)
         self.assertEqual((item["package-args"], item["lfs"]), ("release/package.args", False))
 
+    def test_the_examples_are_the_one_nbtfoundry_source(self):
+        self.assertEqual(reasons(repository="NBTFoundry/examples"), [])
+        self.assertTrue(reasons(repository="NBTFoundry/nf-doom"))
+
     def test_ids_of_other_repositories_and_the_manager_are_refused(self):
         self.assertTrue(reasons("doom", {"doom": "NBTFoundry/nf-doom"}))
         self.assertTrue(reasons("manager"))

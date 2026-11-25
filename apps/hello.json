@@ -1,0 +1,13 @@
+{
+  "repository": "NBTFoundry/examples",
+  "commit": "3564a6111d39bde55acd48236c35bd9588294172",
+  "version": "0.1.0",
+  "sdk": "47be0a296333dabe12fdef56fb2606888c332aee",
+  "build": "make -C hello NBT_SDK_DIR=\"$PWD/../sdk\" -j\"$(nproc)\" module",
+  "payload": "hello/build/nbt-hello.so",
+  "package-args": "hello/release/package.args",
+  "name": "Hello (example)",
+  "summary": "NBTFoundry's example: a box to move and resize with the controller or a gamepad.",
+  "license": "MPL-2.0",
+  "category": "tool"
+}
