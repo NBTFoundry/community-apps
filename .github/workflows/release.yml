@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: MPL-2.0
+# On a merge to main: each added or changed application whose version has no
+# release yet is built from its pinned commit and, once a maintainer approves the
+# run (the "release" environment), signed with NBTFoundry's apps key and published
+# here as <app>-vX.Y.Z with <app>-X.Y.Z.nbt. By hand: one application by id.
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps/**"]
+  workflow_dispatch:
+    inputs:
+      app:
+        description: The application id (its entry's version must have no release yet)
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      apps: ${{ steps.plan.outputs.apps }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Applications to release
+        id: plan
+        env:
+          BEFORE: ${{ github.event.before }}
+          ONLY: ${{ inputs.app }}
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/NBTFoundry/NBTFoundry.github.io/main/apps.json -o "$RUNNER_TEMP/catalog-apps.json"
+          if [[ -n "$ONLY" ]]; then
+            listed="$(python3 -I tools/check_entries.py --reserved "$RUNNER_TEMP/catalog-apps.json" --only "$ONLY")"
+          else
+            # A first push has no parent: every entry is new (the empty tree).
+            [[ "$BEFORE" =~ ^0+$ || -z "$BEFORE" ]] && BEFORE=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+            listed="$(python3 -I tools/check_entries.py --reserved "$RUNNER_TEMP/catalog-apps.json" --base "$BEFORE")"
+          fi
+          apps="$(git tag -l | python3 -I tools/unreleased.py "$listed")"
+          echo "apps=$apps" >>"$GITHUB_OUTPUT"
+          echo "To release: $apps"
+
+  release:
+    needs: plan
+    if: ${{ needs.plan.outputs.apps != '[]' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.apps) }}
+    uses: NBTFoundry/manager/.github/workflows/app-release.yml@83504ec1d11ab6125f081a4988f0fc1b275cf35b # manager main: builds another repository's application
+    permissions:
+      contents: write
+      packages: read
+    # The apps key is a secret of the "release" environment; a called workflow sees it only so.
+    secrets: inherit
+    with:
+      repository: ${{ matrix.repository }}
+      ref: ${{ matrix.commit }}
+      version: ${{ matrix.version }}
+      app: ${{ matrix.app }}
+      sdk-ref: ${{ matrix.sdk }}
+      build: ${{ matrix.build }}
+      payload: ${{ matrix.payload }}
+      package-args: ${{ matrix['package-args'] }}
+      lfs: ${{ matrix.lfs }}

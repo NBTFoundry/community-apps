@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: MPL-2.0
+# A pull request's check: every entry is valid, no id is already another
+# repository's, and each changed application builds from its pinned commit with
+# NBT Manager's release workflow, without a secret and without signing. The
+# summary shows each changed application's package description for the review.
+name: Check
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  entries:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.list.outputs.changed }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Tests
+        run: python3 -I -m unittest discover -s tests
+      - name: Entries
+        id: list
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/NBTFoundry/NBTFoundry.github.io/main/apps.json -o "$RUNNER_TEMP/catalog-apps.json"
+          changed="$(python3 -I tools/check_entries.py --reserved "$RUNNER_TEMP/catalog-apps.json" --base "$BASE")"
+          echo "changed=$changed" >>"$GITHUB_OUTPUT"
+          python3 -I tools/review_summary.py "$changed" >>"$GITHUB_STEP_SUMMARY"
+
+  build:
+    needs: entries
+    if: ${{ needs.entries.outputs.changed != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.entries.outputs.changed) }}
+    uses: NBTFoundry/manager/.github/workflows/app-release.yml@83504ec1d11ab6125f081a4988f0fc1b275cf35b # manager main: builds another repository's application
+    permissions:
+      contents: read
+      packages: read
+    with:
+      repository: ${{ matrix.repository }}
+      ref: ${{ matrix.commit }}
+      version: ${{ matrix.version }}
+      app: ${{ matrix.app }}
+      sdk-ref: ${{ matrix.sdk }}
+      build: ${{ matrix.build }}
+      payload: ${{ matrix.payload }}
+      package-args: ${{ matrix['package-args'] }}
+      lfs: ${{ matrix.lfs }}
+      publish: false
