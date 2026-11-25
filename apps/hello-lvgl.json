@@ -1,0 +1,13 @@
+{
+  "repository": "NBTFoundry/examples",
+  "commit": "3564a6111d39bde55acd48236c35bd9588294172",
+  "version": "0.1.0",
+  "sdk": "47be0a296333dabe12fdef56fb2606888c332aee",
+  "build": "make -C lvgl NBT_SDK_DIR=\"$PWD/../sdk\" -j\"$(nproc)\" module",
+  "payload": "lvgl/build/nbt-hello-lvgl.so",
+  "package-args": "lvgl/release/package.args",
+  "name": "Hello LVGL (example)",
+  "summary": "NBTFoundry's example: a screen of LVGL widgets driven by the iDrive controller.",
+  "license": "MPL-2.0",
+  "category": "tool"
+}
