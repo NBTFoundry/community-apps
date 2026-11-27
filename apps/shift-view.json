@@ -1,0 +1,13 @@
+{
+  "repository": "landingilman-cmd/nbt-manager-decks",
+  "commit": "11c4bda5275ba4a78dbec0afcf3d75470ac8f35d",
+  "version": "1.0.0",
+  "sdk": "c04f03fe3e3ca086517abe8d72ba52514bcda472",
+  "build": "python3 runtime/build.py --app ShiftView",
+  "payload": "build/ShiftView",
+  "package-args": "apps/shift-view/release/package.args",
+  "name": "Shift View",
+  "summary": "Displays engine RPM and road speed with a selectable shift indicator.",
+  "license": "MIT",
+  "category": "tool"
+}
