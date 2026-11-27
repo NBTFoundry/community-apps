@@ -13,6 +13,8 @@ Get apps.
 1. **Your repository:** public, built on the [NBT App SDK](https://github.com/NBTFoundry/sdk)
    (start from the [template](https://github.com/NBTFoundry/template)), with
    its `release/package.args`. Its licence must let us publish the built package.
+   A `release/notes/X.Y.Z.md` beside it (what the version changes, for a car
+   owner) tops the release's page.
 2. **A pull request** adding `apps/<id>.json`, where `<id>` is the package's
    `--app`:
    ```json
