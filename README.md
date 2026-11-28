@@ -6,7 +6,7 @@
 Applications by other developers, built here from their own repositories and
 signed with NBTFoundry's apps key. They install like NBTFoundry's own on any
 car with NBT Manager, with no key to add, and the phone app lists them in
-Get apps.
+its Apps tab.
 
 ## Submit an application
 
@@ -38,7 +38,7 @@ Get apps.
    commit, without signing it. Its summary shows your package description.
 4. **Review and release:** a maintainer reads the source at that commit and
    merges. The release workflow builds it again; once a maintainer approves the
-   signing, `<id>-vX.Y.Z` is published here and Get apps lists it.
+   signing, `<id>-vX.Y.Z` is published here and the phone app lists it.
 
 A new version is a pull request that changes `commit` and raises `version`.
 
