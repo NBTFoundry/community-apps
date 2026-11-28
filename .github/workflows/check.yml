@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJSON(needs.entries.outputs.changed) }}
-    uses: NBTFoundry/manager/.github/workflows/app-release.yml@ab547b224ba85abc311118bd21cffac4463c6e99 # manager main after v0.5.8: catalog update
+    uses: NBTFoundry/manager/.github/workflows/app-release.yml@b7f3e841e7f1543bd57df9bdf0f63dc91a8ec748 # manager main after v0.5.8: catalog update
     # The cap for the called workflow's jobs: its publish job (skipped here,
     # publish: false) declares contents: write, and every job declares its own;
     # the build job, which runs the submitted code, holds only contents: read.
